@@ -1,8 +1,6 @@
 package com.whstone.utils.obs;
 
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.log.Log;
@@ -13,10 +11,9 @@ import com.obs.services.model.*;
 import com.obs.services.model.fs.DropFolderRequest;
 import com.obs.services.model.fs.NewFolderRequest;
 import com.whstone.utils.cmd.CommandUtil;
-import com.whstone.utils.file.FileUtils;
 
-import java.io.*;
-import java.nio.charset.Charset;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -536,7 +533,6 @@ public class ObsHandler {
         System.out.println(s);
 //        set path=%path%;d:\tempfile
         String s2 = CommandUtil.execWinCommand("set Path=%Path%;C:\\CHENLI\\work\\idea_workspace\\ebackup\\E-backup-Menegement\\obsutil\\obsutil_windows_amd64");
-        System.out.println(s2);
     }
 
 }
