@@ -40,9 +40,6 @@ public class ObsHandler {
     private String bucketName = "ebackup-commont";
 
 
-
-
-
     public ObsHandler() {
         obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
     }
@@ -55,7 +52,7 @@ public class ObsHandler {
         try {
             obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
             obsClient.createBucket(bucketName);
-        }catch (Exception e ){
+        } catch (Exception e) {
             throw new ObsException("无法创建 obs 客户端，请检查网络环境是否畅通。");
         }
 
@@ -74,10 +71,10 @@ public class ObsHandler {
             RuntimeUtil.execForStr("chmod -R 777 " + ObsConstant.OBS_ROOT);
         }
         //初始化环境变量
-        if(FileUtil.isWindows()) {
+        if (FileUtil.isWindows()) {
             //windows
-            CommandUtil.getStateExec(String.format("cmd /c",ObsConstant.OBS_WIN64_BIN, "setup.exe"));
-        }else {
+            CommandUtil.getStateExec(String.format("cmd /c", ObsConstant.OBS_WIN64_BIN, "setup.exe"));
+        } else {
             //TODO linux
 
         }
@@ -249,7 +246,7 @@ public class ObsHandler {
         if (!target.endsWith("/")) {
             target += "/";
         }
-        String uploadFolderWithFile = String.format(ObsUtilCmd.uploadFolder,  dir.getAbsolutePath(), this.bucketName, target);
+        String uploadFolderWithFile = String.format(ObsUtilCmd.uploadFolder, dir.getAbsolutePath(), this.bucketName, target);
         log.info("uploadFolderWithFile:{}", uploadFolderWithFile);
 
         String result = RuntimeUtil.execForStr(uploadFolderWithFile);
@@ -318,7 +315,7 @@ public class ObsHandler {
      * @param localFilePath 本地的文件夹路径
      * @return
      */
-    public boolean downloadFolder(String folder, String localFilePath) throws IOException, InterruptedException {
+    public boolean downloadFolder(String folder, String localFilePath) {
         if (!folder.startsWith("/")) {
             folder = "/" + folder;
         }
@@ -328,7 +325,12 @@ public class ObsHandler {
         }
         String downloadFlatFolder = String.format(ObsUtilCmd.downloadFlatFolder, this.bucketName, folder, localFilePath);
         log.info("downloadFlatFolder:{}", downloadFlatFolder);
-        String result = RuntimeUtil.execForStr("cmd /c " + downloadFlatFolder);
+        String result;
+        if (FileUtil.isWindows()) {
+            result = RuntimeUtil.execForStr("cmd /c " + downloadFlatFolder);
+        } else {
+            result = CommandUtil.execLinuxCommand(downloadFlatFolder);
+        }
         log.info("下载结果:{}", result);
         return result.contains("Task id is");
     }
@@ -441,7 +443,7 @@ public class ObsHandler {
     }
 
 
-    public static void main(String[] args) throws ObsOperationException, IOException, InterruptedException {
+    public static void main(String[] args)  {
         String bucketName = "bucket-test02";
         String endPoint = "https://obs.cn-north-1.myhuaweicloud.com";
 
