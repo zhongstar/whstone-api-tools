@@ -47,13 +47,18 @@ public class ObsHandler {
         obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
     }
 
-    public ObsHandler(String endPoint, String ak, String sk, String bucketName) {
+    public ObsHandler(String endPoint, String ak, String sk, String bucketName) throws ObsException {
         this.endPoint = endPoint;
         this.ak = ak;
         this.sk = sk;
         this.bucketName = bucketName;
-        obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
-        obsClient.createBucket(bucketName);
+        try {
+            obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
+            obsClient.createBucket(bucketName);
+        }catch (Exception e ){
+            throw new ObsException("无法创建 obs 客户端，请检查网络环境是否畅通。");
+        }
+
     }
 
     /**
@@ -303,13 +308,6 @@ public class ObsHandler {
         log.info("downloadObject:{}", downloadObject);
         String result = RuntimeUtil.execForStr(downloadObject);
         log.info("下载结果:{}", result);
-
-//        ObsObject downloadFile = obsClient.getObject(this.bucketName, handleDir(path) + keyObject);
-//        InputStream input = downloadFile.getObjectContent();
-//        if (!localFile.endsWith("\\|/")) {
-//            localFile += File.separator;
-//        }
-//        FileUtil.writeFromStream(input, new File(localFile + keyObject));
         return true;
     }
 
@@ -330,34 +328,6 @@ public class ObsHandler {
         }
         String downloadFlatFolder = String.format(ObsUtilCmd.downloadFlatFolder, this.bucketName, folder, localFilePath);
         log.info("downloadFlatFolder:{}", downloadFlatFolder);
-        /*File downBat = new File(ObsConstant.OBS_DOWNLOAD_BAT);
-        File downLog = new File(ObsConstant.OBS_DOWNLOAD_LOG);
-        if(!downBat.exists()) {
-            downBat.createNewFile();
-        }
-        if(!downLog.exists()) {
-            downBat.createNewFile();
-        }
-        FileUtils.writeString(downBat,downloadFlatFolder);
-        Runtime runtime = Runtime.getRuntime();
-        Process p = runtime.exec("cmd /c " + ObsConstant.OBS_DOWNLOAD_BAT);
-        BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), Charset.forName("GBK")));
-        StringBuffer buffer = new StringBuffer();
-        String line;
-        while ((line = r.readLine()) != null) {
-
-            buffer.append(line + "\n");
-
-        }
-        String result = buffer.toString();
-        FileUtils.writeString(downLog,result);
-        p.waitFor();
-        //检查完成状态
-        if (p.exitValue() == 0 && checkCompleted(runtime)) {
-            return true;
-        }
-        return false;*/
-
         String result = RuntimeUtil.execForStr("cmd /c " + downloadFlatFolder);
         log.info("下载结果:{}", result);
         return result.contains("Task id is");
@@ -409,9 +379,9 @@ public class ObsHandler {
     /**
      * 清空 指定云端文件夹 相对同路径
      *
-     * @param folder
+     * @param folder /
      */
-    public void emptyFolder(String folder) {
+    public void deleteFolder(String folder) {
         DropFolderRequest dropFolderRequest = new DropFolderRequest();
         dropFolderRequest.setBucketName(this.bucketName);
         dropFolderRequest.setFolderName(folder);
