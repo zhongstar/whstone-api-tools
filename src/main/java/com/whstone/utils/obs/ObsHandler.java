@@ -223,8 +223,8 @@ public class ObsHandler {
         if (FileUtil.isDirectory(file)) {
             return false;
         }
-        if (!target.startsWith(File.separator)) {
-            target = File.separator + target;
+        if (!target.startsWith("/")) {
+            target = "/" + target;
         }
         String uploadObject = String.format(ObsUtilCmd.uploadObject, file.getAbsolutePath(), this.bucketName, target);
         log.info("uploadObject:{}", uploadObject);
@@ -243,11 +243,11 @@ public class ObsHandler {
         if (FileUtil.isFile(dir)) {
             return false;
         }
-        if (!target.startsWith(File.separator)) {
-            target = File.separator + target;
+        if (!target.startsWith("/")) {
+            target = "/" + target;
         }
-        if (!target.endsWith(File.separator)) {
-            target += File.separator;
+        if (!target.endsWith("/")) {
+            target += "/";
         }
         String uploadFolderWithFile = String.format(ObsUtilCmd.uploadFolder,  dir.getAbsolutePath(), this.bucketName, target);
         log.info("uploadFolderWithFile:{}", uploadFolderWithFile);
@@ -298,10 +298,10 @@ public class ObsHandler {
      * @return
      */
     public boolean downloadObject(String path, String keyObject, String localFile) {
-        if (!path.endsWith(File.separator)) {
-            path += File.separator;
+        if (!path.endsWith("/")) {
+            path += "/";
         }
-        if (path.startsWith(File.separator)) {
+        if (path.startsWith("/")) {
             path = path.substring(1);
         }
         String downloadObject = String.format(ObsUtilCmd.downloadObject, this.bucketName, path + keyObject, localFile);
@@ -319,8 +319,8 @@ public class ObsHandler {
      * @return
      */
     public boolean downloadFolder(String folder, String localFilePath) throws IOException, InterruptedException {
-        if (!folder.startsWith(File.separator)) {
-            folder = File.separator + folder;
+        if (!folder.startsWith("/")) {
+            folder = "/" + folder;
         }
         File file = new File(localFilePath);
         if (!file.exists()) {
@@ -367,7 +367,7 @@ public class ObsHandler {
     }
 
     public void deleteObject(String objectkey) {
-        if (objectkey.startsWith(File.separator)) {
+        if (objectkey.startsWith("/")) {
             objectkey = objectkey.substring(1);
         }
         String deleteObject = String.format(ObsUtilCmd.deleteObject, this.bucketName, objectkey);
@@ -397,11 +397,11 @@ public class ObsHandler {
     }
 
     private String handleDir(String dir) {
-        if (dir.startsWith(File.separator)) {
+        if (dir.startsWith("/")) {
             dir = dir.substring(1);
         }
-        if (!dir.endsWith(File.separator)) {
-            dir += File.separator;
+        if (!dir.endsWith("/")) {
+            dir += "/";
         }
         return dir;
     }
