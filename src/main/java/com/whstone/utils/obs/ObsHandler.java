@@ -68,20 +68,19 @@ public class ObsHandler {
      */
     public static void initObsUtil(String endPoint, String ak, String sk) {
         if (!FileUtil.isWindows()) {
-            RuntimeUtil.execForStr("chmod -R 777 " + ObsConstant.OBS_ROOT);
-        }
-        //初始化环境变量
-        if (FileUtil.isWindows()) {
-            //windows
-            CommandUtil.getStateExec(String.format("cmd /c", ObsConstant.OBS_WIN64_BIN, "setup.exe"));
-        } else {
-            //TODO linux
-
+            CommandUtil.getLinuxStateExec("chmod -R 777 " + ObsConstant.OBS_ROOT);
         }
         //初始化配置
         String initCmd = String.format(ObsUtilCmd.initObsutil, ak, sk, endPoint);
-        log.info(initCmd);
-        CommandUtil.getStateExec(initCmd);
+        if (FileUtil.isWindows()) {
+            //windows
+            log.info("initCmd for windows :{}", initCmd);
+            RuntimeUtil.execForStr(initCmd);
+        } else {
+            log.info("initCmd for linux :{}", initCmd);
+            CommandUtil.getLinuxStateExec(initCmd);
+
+        }
     }
 
 
@@ -443,7 +442,7 @@ public class ObsHandler {
     }
 
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         String bucketName = "bucket-test02";
         String endPoint = "https://obs.cn-north-1.myhuaweicloud.com";
 
