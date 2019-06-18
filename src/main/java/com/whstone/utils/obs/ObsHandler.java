@@ -44,6 +44,10 @@ public class ObsHandler {
         obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
     }
 
+    public ObsHandler(String endPoint, String ak, String sk) {
+        obsClient = new ObsClient(ak, sk, ObsConfig.getConfig(endPoint));
+    }
+
     public ObsHandler(String endPoint, String ak, String sk, String bucketName) throws ObsException {
         this.endPoint = endPoint;
         this.ak = ak;
