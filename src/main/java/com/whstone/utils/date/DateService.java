@@ -253,6 +253,21 @@ public class DateService {
         return timeStringBuilder.toString() + "钟";
     }
 
+    public static String getTimeConsum(String beginTime, String endTime) {
+        String result = "0";
+        SimpleDateFormat format = new SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss");
+        try {
+            result = intervalSecond(format.parse(beginTime) ,format.parse(endTime));
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+
+        }
+        return result;
+
+    }
+
     /**
      * 获取两个时间的秒间隔
      *
@@ -287,21 +302,8 @@ public class DateService {
     }
 
     public static void main(String[] args) throws Exception {
-        Date date = new Date();
 
-        System.out.println(getCurrentDateAsString());
-        System.out.println(date);
-        // format对象是用来以指定的时间格式格式化时间的
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // 这里的格式可以自己设置
-        Date d = sdf.parse("2016-04-12 17:00:00");
-        System.out.println(sdf.format(DateService.addOrMinusYear(date, -1)));
-        d.setDate(d.getDate() + 7);
-        System.out.println(d.getDate());
-        d.setMinutes(d.getMinutes() + 15);//给当前时间加50分钟后的时间
-        System.out.println(sdf.format(d));
-        int i = date.compareTo(d);
-        System.out.println(i);
-
+        System.out.println(getTimeConsum("2019-06-14 15:47:20","2019-06-14 15:47:50"));
 
     }
 }
