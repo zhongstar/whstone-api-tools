@@ -7,14 +7,13 @@ import com.obs.services.ObsConfiguration;
  */
 public class ObsConfig {
     public static final long partSize = 10 * 1024 * 1024L; //每段上传的大小
-
-
+    public static final int taskNum = 5; //分段下载时的最大并发数
 
     public static ObsConfiguration getConfig(String endPoint) {
 
         ObsConfiguration config = new ObsConfiguration();
         config.setSocketTimeout(30000);
-        config.setConnectionTimeout(10000);
+        config.setConnectionTimeout(30000);
         config.setEndPoint(endPoint);
 
         return config;

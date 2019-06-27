@@ -111,6 +111,16 @@ public class ObsHandler {
     }
 
     /**
+     * 获取对象
+     *
+     * @param objectKey
+     * @return
+     */
+    public ObjectMetadata getObject(String objectKey) {
+        return obsClient.getObjectMetadata(bucketName, objectKey);
+    }
+
+    /**
      * 获取所有的桶
      *
      * @return
@@ -339,6 +349,83 @@ public class ObsHandler {
     }
 
     /**
+     * 下载云端指定文件夹到指定目录下(不包括指定文件夹)
+     * 列举对象名前缀包含sourcePath的所有对象,使用断点续传下载下下来
+     *
+     * @param sourcePath 相对 云端桶路径 /fullbackup/
+     * @param targetPath 本地的文件夹路径
+     * @return
+     */
+    public boolean downloadFolder2(String sourcePath, String targetPath) {
+        if (sourcePath.startsWith("/")) {
+            sourcePath = sourcePath.substring(1);
+        }
+        if (!sourcePath.endsWith("/")) {
+            sourcePath = sourcePath + "/";
+        }
+        File file = new File(targetPath);
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+
+        ListObjectsRequest listObjectsRequest = new ListObjectsRequest();
+        listObjectsRequest.setBucketName(this.bucketName);
+        listObjectsRequest.setMaxKeys(1000);
+        listObjectsRequest.setPrefix(sourcePath);
+        ObjectListing result;
+
+        do {
+            result = obsClient.listObjects(listObjectsRequest);
+            List<ObsObject> downloadLists = result.getObjects();
+            downloadLists.stream().forEach(obsObject -> log.info("\t{}", obsObject.getObjectKey()));
+            for (ObsObject obsObject : downloadLists) {
+                String objectKey = obsObject.getObjectKey();
+                //对象在本地的路径
+                String localFilePath = targetPath + objectKey.replace(sourcePath, "");
+                if (FileUtil.isWindows()) {
+                    localFilePath = localFilePath.replaceAll("/", "\\\\");
+                }
+                if (objectKey.endsWith("/")) {
+                    log.info("创建文件夹:{}", localFilePath);
+                    FileUtil.mkdir(localFilePath);
+                    continue;
+                } else {
+                    DownloadFileRequest request = new DownloadFileRequest(this.bucketName, objectKey);
+                    // 设置下载对象的本地文件路径
+                    request.setDownloadFile(localFilePath);
+                    // 设置分段下载时的最大并发数
+                    request.setTaskNum(ObsConfig.taskNum);
+                    // 设置分段大小为10MB
+                    request.setPartSize(ObsConfig.partSize);
+                    // 开启断点续传模式
+                    request.setEnableCheckpoint(true);
+                    // 进行断点续传下载
+                    try {
+                        File localFile = new File(localFilePath);
+                        if (localFile.exists() & localFile.length() == getObject(objectKey).getContentLength()) {
+                            log.info("跳过已存在的本地文件:{}", localFilePath);
+                            continue;
+                        } else {
+                            obsClient.downloadFile(request);
+                            log.info("下载文件{}成功", localFilePath);
+                        }
+                    } catch (ObsException e) {
+                        if (e.getErrorMessage().contains("SSL peer shut down incorrectly")) {
+                            System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
+                            downloadFolder2(sourcePath, targetPath);
+                        } else {
+                            throw e;
+                        }
+                    }
+                }
+            }
+            listObjectsRequest.setMarker(result.getNextMarker());
+        } while (result.isTruncated());
+
+        return true;
+    }
+
+    /**
      * 删除云端指定的所有文件
      *
      * @param keys
@@ -447,7 +534,7 @@ public class ObsHandler {
 
 
     public static void main(String[] args) {
-        String bucketName = "bucket-test02";
+        String bucketName = "ebackup-oracle";
         String endPoint = "https://obs.cn-north-1.myhuaweicloud.com";
 
         String ak = "YNMFU9BIUDDXORKJ9API";
@@ -455,6 +542,7 @@ public class ObsHandler {
         String sk = "WftQLMWN8SQRpSQiEhs2BLGED6zjb5ywc1WILLXQ";
 
         String obsBinPath = "obsutil\\obsutil_windows_amd64\\";
+        System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2,SSLv3");
 //        String windowsStartCmd = obsBinPath + "obsutil config -i=%s -k=%s -e=%s";
 //
 //        String s = RuntimeUtil.execForStr(String.format(windowsStartCmd, ak, sk, endPoint));  //初始化
@@ -500,14 +588,16 @@ public class ObsHandler {
 //        obsHandler.downloadObject("/target/", "ebackupmenegement2.jar.original", "C:\\Users\\WHST-CHENLI\\Desktop\\wstone\\ebackupmenegement.jar.original");
 //        obsHandler.downloadFolder("target/", "C:\\Users\\WHST-CHENLI\\Desktop\\wstone\\target");
 
-        String getenv = System.getenv("path");
-
-        System.out.println(getenv);
-
-        String s = CommandUtil.execWinCommand("echo %path%");
-        System.out.println(s);
-//        set path=%path%;d:\tempfile
-        String s2 = CommandUtil.execWinCommand("set Path=%Path%;C:\\CHENLI\\work\\idea_workspace\\ebackup\\E-backup-Menegement\\obsutil\\obsutil_windows_amd64");
+//        String getenv = System.getenv("path");
+//
+//        System.out.println(getenv);
+//
+//        String s = CommandUtil.execWinCommand("echo %path%");
+//        System.out.println(s);
+////        set path=%path%;d:\tempfile
+//        String s2 = CommandUtil.execWinCommand("set Path=%Path%;C:\\CHENLI\\work\\idea_workspace\\ebackup\\E-backup-Menegement\\obsutil\\obsutil_windows_amd64");
+        boolean b = obsHandler.downloadFolder2("221", "C:\\Users\\WHST-CHENLI\\Desktop\\obstest\\");
+        System.out.println();
     }
 
 }
