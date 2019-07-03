@@ -154,7 +154,7 @@ public class ObsHandler {
         String objectkey = target + file.getName();
 
         long fileSize = file.length();
-        long partSize = ObsConfig.partSize;
+        long partSize = ObsConfig.PART_SIZE;
         long partCount = fileSize % partSize == 0 ? fileSize / partSize : fileSize / partSize + 1;
 
         final List<PartEtag> partEtags = Collections.synchronizedList(new ArrayList<>());
@@ -394,9 +394,9 @@ public class ObsHandler {
                     // 设置下载对象的本地文件路径
                     request.setDownloadFile(localFilePath);
                     // 设置分段下载时的最大并发数
-                    request.setTaskNum(ObsConfig.taskNum);
+                    request.setTaskNum(ObsConfig.TASK_NUM);
                     // 设置分段大小为10MB
-                    request.setPartSize(ObsConfig.partSize);
+                    request.setPartSize(ObsConfig.PART_SIZE);
                     // 开启断点续传模式
                     request.setEnableCheckpoint(true);
                     // 进行断点续传下载

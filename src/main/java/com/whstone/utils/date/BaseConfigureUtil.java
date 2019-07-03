@@ -26,8 +26,9 @@ public class BaseConfigureUtil {
      * startDate 除了单次、按分钟和按小时外，只作为从指定时间开始的参考
      */
     public static Date accordBackupBaseConfigureInferDate(Date assignDate, DateConfigure dateConfigure) throws ParseException {
-        if (assignDate == null) assignDate = DateService.getCurrentUtilDate();
         Date result = null;
+        if (dateConfigure == null) return result;
+        if (assignDate == null) assignDate = DateService.getCurrentUtilDate();
         Date startTime = dateTimeInstance.parse(dateConfigure.getStartTime());
         switch (BackupTimeStrategyTypeEnum.getByCode(dateConfigure.getTimeStrategy())) {
             case ONCE_BACKUP:
@@ -61,8 +62,9 @@ public class BaseConfigureUtil {
      * startDate 除了单次、按分钟和按小时外，只作为从指定时间开始的参考
      */
     public static Date accordRestoreBaseConfigureInferDate(Date assignDate, DateConfigure dateConfigure) throws ParseException {
-        if (assignDate == null) assignDate = DateService.getCurrentUtilDate();
         Date result = null;
+        if (dateConfigure == null) return result;
+        if (assignDate == null) assignDate = DateService.getCurrentUtilDate();
         Date startTime = dateTimeInstance.parse(dateConfigure.getStartTime());
         switch (RestoreTimeStrategyTypeEnum.getByCode(dateConfigure.getTimeStrategy())) {
             case ONCE_BACKUP:
