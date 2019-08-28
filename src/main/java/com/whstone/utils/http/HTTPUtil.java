@@ -50,6 +50,33 @@ public class HTTPUtil {
         return JSONObject.parseObject(jsonString, clazz);
     }
 
+    public static <T, Z> Z put(String url, T data, Class<Z> clazz) throws Exception {
+        CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+        HttpPut put = new HttpPut(url);
+
+        String s = JSONObject.toJSON(data).toString();
+
+        logger.info("请求参数：" + s);
+
+        StringEntity se = new StringEntity(s, "UTF-8");
+
+        put.setEntity(se);
+        put.addHeader(HTTP.CONTENT_TYPE, "application/json");
+
+
+        //获取response
+        CloseableHttpResponse response = httpClient.execute(put);
+
+        //从reponse中解析数据
+        //从response中获取json字符串
+        HttpEntity responseEntity = response.getEntity();
+        String jsonString = EntityUtils.toString(responseEntity, "UTF-8");
+        logger.info("接收参数：" + jsonString);
+
+
+        return JSONObject.parseObject(jsonString, clazz);
+    }
+
     public static <T, Z> List<Z> postList(String url, T data, Class<Z> clazz) throws Exception {
         CloseableHttpClient httpClient = HttpClientBuilder.create().build();
         HttpPost post = new HttpPost(url);

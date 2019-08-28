@@ -65,4 +65,13 @@ public class FetchHostController {
         int result = fetchHostService.restartHost();
         return RestResultGenerator.genResult(result, ResponseStatusEnum.OPERATION_SUCCESS);
     }
+
+    /**
+     * 用作判断当前主机是否启动的依据
+     * @return
+     */
+    @GetMapping("/ping")
+    public ResponseResult isAlive() {
+        return RestResultGenerator.genResult(null, ResponseStatusEnum.QUERY_SUCCESS);
+    }
 }
