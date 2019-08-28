@@ -5,7 +5,7 @@ import java.sql.*;
 /**
  * Created by zhongkf on 2018/5/24
  */
-public class DBUtil {
+public class DBUtil implements AutoCloseable {
 
     private static String driver = "oracle.jdbc.OracleDriver";
 
@@ -69,7 +69,9 @@ public class DBUtil {
     /**
      * 关闭资源
      */
+    @Override
     public void close() {
+        System.out.println("DbUtil关闭");
         try {
             if (rs != null) {
                 rs.close();

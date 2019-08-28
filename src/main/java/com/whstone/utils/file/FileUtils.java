@@ -82,12 +82,12 @@ public class FileUtils {
 
         for (int i = 0; i < filePath.length; i++) {
             if ((new File(sourcePath + File.separator + filePath[i])).isDirectory()) {
-                logger.info("Directory:" + newPath + File.separator + filePath[i]);
+                logger.info("Directory:{}", newPath + File.separator + filePath[i]);
                 copyDir(sourcePath + File.separator + filePath[i], newPath + File.separator + filePath[i]);
             }
 
             if (new File(sourcePath + File.separator + filePath[i]).isFile()) {
-                logger.info("file:" + newPath + File.separator + filePath[i]);
+                logger.info("file:{}", newPath + File.separator + filePath[i]);
                 copyWriteFile(sourcePath + File.separator + filePath[i], newPath + File.separator + filePath[i]);
             }
 
@@ -575,7 +575,7 @@ public class FileUtils {
         BufferedReader bufferedReader = new BufferedReader(read);
         String line = null;
         while ((line = bufferedReader.readLine()) != null) {
-            if(line.startsWith("#")){
+            if (line.startsWith("#")) {
                 continue;
             }
             //指定字符串判断处
@@ -589,15 +589,15 @@ public class FileUtils {
     /**
      * 替换文件中指定文件内容
      *
-     * @param target 待替换字符串
+     * @param target      待替换字符串
      * @param replacement 新的字符串
      * @return
      */
-    public static Boolean replacFileContent(String filePath,String target,String replacement){
+    public static Boolean replacFileContent(String filePath, String target, String replacement) {
         //原有的内容
         // 读
         File file = new File(filePath);
-        if(!file.exists()){
+        if (!file.exists()) {
             return false;
         }
         try {
@@ -607,7 +607,7 @@ public class FileUtils {
             CharArrayWriter tempStream = new CharArrayWriter();
             // 替换
             String line = null;
-            while ( (line = bufIn.readLine()) != null) {
+            while ((line = bufIn.readLine()) != null) {
                 // 替换每行中, 符合条件的字符串
                 line = line.replaceAll(target, replacement);
                 // 将该行写入内存
