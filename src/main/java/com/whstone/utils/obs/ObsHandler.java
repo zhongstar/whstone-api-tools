@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by zhongkf on 2019/05/28
  */
-public class ObsHandler {
+public class ObsHandler implements AutoCloseable{
 
     private static final Log log = LogFactory.get();
 
@@ -485,6 +485,12 @@ public class ObsHandler {
      * 关闭obs客户端
      */
     public void closeObs() throws IOException {
+        log.info("obsClient closed");
+        obsClient.close();
+    }
+
+    @Override
+    public void close() throws IOException {
         log.info("obsClient closed");
         obsClient.close();
     }
