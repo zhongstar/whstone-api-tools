@@ -1,6 +1,9 @@
 package com.whstone.utils.cmd;
 
+import cn.hutool.core.io.file.FileWriter;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -63,6 +66,92 @@ public class CommandUtil {
     }
 
     /**
+     * windows 根据执行命令获取返回结果信息(定制版)
+     *
+     * @param command
+     * @return result 结果集
+     */
+    public static String execWinCommand2(String command, File logFile) {
+        String result = null;
+        Process p = null;
+        BufferedReader r = null;
+        try {
+            if (command.contains("powershell")) {
+                p = Runtime.getRuntime().exec(command);
+            } else {
+                p = Runtime.getRuntime().exec("cmd /c " + command);
+            }
+
+            r = new BufferedReader(new InputStreamReader(p.getErrorStream(), Charset.forName("GBK")));
+            StringBuffer buffer = new StringBuffer();
+            String line;
+            FileWriter fileWriter = FileWriter.create(logFile);
+            while ((line = r.readLine()) != null) {
+                buffer.append(line + "\n");
+                fileWriter.write(line, true);
+            }
+            result = buffer.toString();
+            p.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (p != null) {
+                    p.destroy();
+                }
+                if (r != null) {
+                    r.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * windows 根据执行命令获取返回结果信息(定制版)
+     *
+     * @param command
+     * @return result 结果集
+     */
+    public static String execWinCommand2(String command) {
+        String result = null;
+        Process p = null;
+        BufferedReader r = null;
+        try {
+            if (command.contains("powershell")) {
+                p = Runtime.getRuntime().exec(command);
+            } else {
+                p = Runtime.getRuntime().exec("cmd /c " + command);
+            }
+
+            r = new BufferedReader(new InputStreamReader(p.getErrorStream(), Charset.forName("GBK")));
+            StringBuffer buffer = new StringBuffer();
+            String line;
+            while ((line = r.readLine()) != null) {
+                buffer.append(line + "\n");
+            }
+            result = buffer.toString();
+            p.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (p != null) {
+                    p.destroy();
+                }
+                if (r != null) {
+                    r.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    /**
      * windows 调用dg broker 命令，获取解析结果
      *
      * @param command
@@ -80,7 +169,7 @@ public class CommandUtil {
             String line;
             while ((line = r.readLine()) != null) {
 
-                if (line.contains("已连接") || line.contains("身份连接")) {
+                if (line.contains("已连接") || line.contains("身份连接") || line.contains("Connected")) {
                     while ((line = r.readLine()) != null) {
                         buffer.append(line + "\n");
                     }
@@ -162,6 +251,106 @@ public class CommandUtil {
 
                 buffer.append(line + "\n");
 
+            }
+            result = buffer.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (p != null) {
+                    p.destroy();
+                }
+                if (r != null) {
+                    r.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Linux 根据执行命令获取返回结果信息
+     *
+     * @param command
+     * @return result 结果集
+     */
+    public static String execLinuxCommand2(String command, File logFile) {
+        String result = null;
+        Process p = null;
+        BufferedReader r = null;
+        try {
+            if (osName != null && osName.startsWith("Linux")) {
+
+                String[] cmds = {"sh", "-c", command};
+                p = Runtime.getRuntime().exec(cmds);
+
+            } else if (osName != null && osName.startsWith("AIX")) {
+
+                String[] cmds = {"sh", "-c", command};
+                p = Runtime.getRuntime().exec(cmds);
+
+            } else {
+                //非unix或linux系统
+            }
+            p.waitFor();
+            r = new BufferedReader(new InputStreamReader(p.getErrorStream(), Charset.forName("GBK")));
+            StringBuffer buffer = new StringBuffer();
+            String line;
+            FileWriter fileWriter = FileWriter.create(logFile);
+            while ((line = r.readLine()) != null) {
+                buffer.append(line + "\n");
+                fileWriter.write(line, true);
+            }
+            result = buffer.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (p != null) {
+                    p.destroy();
+                }
+                if (r != null) {
+                    r.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Linux 根据执行命令获取返回结果信息
+     *
+     * @param command
+     * @return result 结果集
+     */
+    public static String execLinuxCommand2(String command) {
+        String result = null;
+        Process p = null;
+        BufferedReader r = null;
+        try {
+            if (osName != null && osName.startsWith("Linux")) {
+
+                String[] cmds = {"sh", "-c", command};
+                p = Runtime.getRuntime().exec(cmds);
+
+            } else if (osName != null && osName.startsWith("AIX")) {
+
+                String[] cmds = {"sh", "-c", command};
+                p = Runtime.getRuntime().exec(cmds);
+
+            } else {
+                //非unix或linux系统
+            }
+            p.waitFor();
+            r = new BufferedReader(new InputStreamReader(p.getErrorStream(), Charset.forName("GBK")));
+            StringBuffer buffer = new StringBuffer();
+            String line;
+            while ((line = r.readLine()) != null) {
+                buffer.append(line + "\n");
             }
             result = buffer.toString();
         } catch (Exception e) {
